@@ -2,6 +2,7 @@ const base = require('./base.config');
 const merge = require('webpack-merge');
 const path = require('path');
 const webpack = require('webpack');
+const Dotenv = require('dotenv-webpack');
 
 const developmentConfig = {
   devServer: {
@@ -13,6 +14,10 @@ const developmentConfig = {
     'webpack/hot/dev-server', // see: https://webpack.github.io/docs/webpack-dev-server.html#hot-module-replacement - Mathias doesn't need this b/c he uses his own express server with a middleware (so he can define more custom roots and have it be independent from Webpack), react-redux-starter-kit uses node to start server (with Koa, alternative to express, see server/main.js)
   ],
   plugins: [
+    new Dotenv({
+      path: './.env',
+      safe: true
+    }),
     new webpack.ProvidePlugin({
       'window.jQuery': 'jquery',
       $: 'jquery',

@@ -4,6 +4,8 @@ require('free-jqgrid');
 import io from 'socket.io-client';
 import axios from 'axios';
 
+console.log('dotetnv', process.env)
+
 console.log(io)
 // const socket = io('http://localhost:5000', {transports: ['websocket']});
 
@@ -12,7 +14,17 @@ console.log(io)
 
 
 let container = document.querySelector('#root');
-container.innerHTML = `<h1>Hello</h1>`;
+container.innerHTML = `
+<div class='row'>
+    <div class="col-md-4">
+        <div class='col-md-4 col-md-offset-4'>
+            <table id='spreadsheet'>
+            </table>
+        </div>
+    </div>
+</div>
+`;
+
 
 async function getData () {
   let resp = await axios('http://localhost:5000/data');
@@ -38,6 +50,8 @@ $("#spreadsheet").jqGrid({
     { name: "SexCode" }],
   data: [],
   cellEdit: true,
+  cellurl: 'http://localhost:5000/data',
+  cellsubmit: 'remote',
   loadonce: true,
   onSelectCell: (rowId, cellName, value, iRow, iCol) => {
     console.log('BEFORE EDITING', 'cell name', cellName, 'value', value, iRow, iCol)
@@ -45,8 +59,8 @@ $("#spreadsheet").jqGrid({
     
   },
   onCellSelect: (rowId, iCol, cellContent, e) => {
-    console.log('On select', rowId, 'iCol', iCol, 'cellContent', cellContent)
-    console.log(e)
+    console.log('On select', rowId, 'iCol', iCol, 'cellContent', cellContent);
+    console.log(e);
     
   },
   beforeEditCell: (rowId, cellName, value, iRow, iCol) => {
@@ -56,6 +70,10 @@ $("#spreadsheet").jqGrid({
       $('#spreadsheet').jqGrid('setCell', rowId, cellName, '', 'not-editable-cell')
     }
     
+  },
+  beforeSubmitCell: (rowId, cellName, value, iRow, iCol) => {
+    console.log(cellName, '=>', value, iRow, iCol);
+    return {rowId, cellName, value, iRow, iCol}
   },
   filtering: true,
   pageSize:15,
@@ -67,14 +85,14 @@ $("#spreadsheet").jqGrid({
       url: 'http://localhost:5000/data',
       dataType: "json"
     }).done(function(response) {
-      console.log(response)
+      console.log(response);
 	d.resolve(response.value);
     });
 
     return d.promise();
   },
   loadComplete: () => {
-    console.log('DONE')
+    console.log('DONE');
   },
   gridview: true
 })
